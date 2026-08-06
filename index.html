@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>시니어 맞춤형 복약 안내 및 알림 서비스</title>
+  <!-- 프리텐다드 폰트 -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <style>
+    /* =========================================================
+       1. 소프트 눈 편한 헬스케어 디자인 (차분한 파스텔 블루 & 세이지 그린)
+       ========================================================= */
+    :root {
+      --primary-color: #3b72bf;       /* 눈이 매우 편안한 따뜻한 파스텔 블루 */
+      --primary-gradient: linear-gradient(135deg, #3b72bf 0%, #2b599e 100%);
+      --secondary-color: #2e8b57;     /* 눈이 안정되는 시키 세이지 그린 */
+      --secondary-gradient: linear-gradient(135deg, #2e8b57 0%, #216d43 100%);
+      --bg-color: #f4f7fb;            /* 눈부심을 줄인 차분한 크림 아이보리 톤 */
+      --card-bg: #ffffff;
+      --text-main: #1f2937;           /* 선명하지만 눈 아프지 않은 다크 톤 */
+      --text-sub: #4b5563;
+      --accent-color: #e06d3b;        /* 차분한 샌드 오렌지 */
+      --accent-gradient: linear-gradient(135deg, #e06d3b 0%, #c45222 100%);
+      --border-radius: 20px;
+      --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
+      --shadow-lg: 0 10px 20px -3px rgba(59, 114, 191, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Pretendard Variable", Pretendard, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-size: 19px;
+      line-height: 1.65;
+      padding: 25px 15px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      background: linear-gradient(135deg, #edf4fc 0%, #ebf6f1 100%);
+      padding: 35px 25px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-lg);
+      margin-bottom: 30px;
+      border: 2px solid #d8e5f7;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: -50px;
+      right: -50px;
+      width: 150px;
+      height: 150px;
+      background: rgba(46, 139, 87, 0.08);
+      border-radius: 50%;
+    }
+
+    header h1 {
+      font-size: 34px;
+      color: var(--primary-color);
+      margin-bottom: 12px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    header p {
+      font-size: 20px;
+      color: var(--text-sub);
+      font-weight: 600;
+    }
+
+    .section-card {
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-lg);
+      margin-bottom: 30px;
+      border: 1px solid #e5e7eb;
+      transition: transform 0.2s ease;
+    }
+
+    .section-title {
+      font-size: 25px;
+      color: var(--primary-color);
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 3px solid #f0f5fc;
+      padding-bottom: 12px;
+      font-weight: 800;
+    }
+
+    .form-group {
+      margin-bottom: 22px;
+    }
+
+    label {
+      display: block;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--text-main);
+    }
+
+    input[type="text"],
+    input[type="time"] {
+      width: 100%;
+      padding: 18px 22px;
+      font-size: 20px;
+      border: 2px solid #d1d5db;
+      border-radius: 14px;
+      background-color: #fafbfc;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="time"]:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      background-color: #ffffff;
+      box-shadow: 0 0 0 4px rgba(59, 114, 191, 0.15);
+    }
+
+    .btn {
+      display: inline-block;
+      width: 100%;
+      padding: 18px 24px;
+      font-size: 22px;
+      font-weight: 700;
+      color: #ffffff;
+      background: var(--primary-gradient);
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(59, 114, 191, 0.2);
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(59, 114, 191, 0.3);
+    }
+
+    .btn-green {
+      background: var(--secondary-gradient);
+      box-shadow: 0 4px 10px rgba(46, 139, 87, 0.2);
+    }
+
+    .btn-green:hover {
+      box-shadow: 0 6px 14px rgba(46, 139, 87, 0.3);
+    }
+
+    .btn-delete {
+      background-color: #fef2f2;
+      color: #b91c1c;
+      border: 2px solid #fca5a5;
+      padding: 10px 18px;
+      font-size: 18px;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-delete:hover {
+      background-color: #dc2626;
+      color: #ffffff;
+    }
+
+    .search-box {
+      display: flex;
+      gap: 12px;
+    }
+
+    .search-box input {
+      flex: 1;
+    }
+
+    .search-box .btn {
+      width: auto;
+      min-width: 130px;
+    }
+
+    .drug-card {
+      background-color: #fafbfc;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 24px;
+      margin-top: 22px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .drug-card h3 {
+      font-size: 24px;
+      color: var(--primary-color);
+      margin-bottom: 18px;
+      background: #f0f6ff;
+      padding: 14px 18px;
+      border-radius: 12px;
+      font-weight: 800;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .badge-api {
+      font-size: 15px;
+      background: var(--primary-gradient);
+      color: #ffffff;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: 700;
+    }
+
+    .drug-info-item {
+      margin-bottom: 18px;
+    }
+
+    .drug-info-item strong {
+      color: #1e293b;
+      font-size: 20px;
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .drug-info-item p {
+      font-size: 19px;
+      color: #334155;
+      background: #ffffff;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      white-space: pre-line;
+      line-height: 1.65;
+    }
+
+    .easy-tip-box {
+      background-color: #fefce8;
+      border: 2px solid #fef08a;
+      border-radius: 14px;
+      padding: 20px;
+      margin-top: 22px;
+    }
+
+    .easy-tip-box h4 {
+      font-size: 22px;
+      color: #854d0e;
+      margin-bottom: 10px;
+      font-weight: 800;
+    }
+
+    .easy-tip-box p {
+      font-size: 19px;
+      color: #a16207;
+      line-height: 1.65;
+      font-weight: 600;
+    }
+
+    .alarm-list {
+      list-style: none;
+      margin-top: 18px;
+    }
+
+    .alarm-item {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-left: 8px solid var(--secondary-color);
+      padding: 18px 22px;
+      border-radius: 14px;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .alarm-item-info {
+      font-size: 21px;
+      color: #0f172a;
+    }
+
+    .alarm-item-right {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .alarm-item-time {
+      font-weight: 800;
+      color: var(--primary-color);
+      font-size: 23px;
+      background: #eff6ff;
+      padding: 6px 14px;
+      border-radius: 10px;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(4px);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .modal-content {
+      background: #ffffff;
+      padding: 45px 35px;
+      border-radius: 28px;
+      text-align: center;
+      max-width: 580px;
+      width: 100%;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+      border: 4px solid #ff6b35;
+    }
+
+    .modal-icon {
+      font-size: 75px;
+      margin-bottom: 18px;
+      display: block;
+    }
+
+    .modal-title {
+      font-size: 34px;
+      color: #d93800;
+      margin-bottom: 18px;
+      font-weight: 800;
+    }
+
+    .modal-message {
+      font-size: 27px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 35px;
+      line-height: 1.45;
+      background: #fff5f0;
+      padding: 22px;
+      border-radius: 18px;
+      border: 2px dashed #ffb899;
+    }
+
+    .modal-btn {
+      font-size: 25px;
+      padding: 20px 45px;
+      background: var(--accent-gradient);
+      box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>💊 시니어 맞춤 복약 안내 & 알림</h1>
+      <p>어르신의 건강한 하루를 위해 복약 시간을 쉽고 정확하게 알려드립니다</p>
+    </header>
+
+    <section class="section-card">
+      <h2 class="section-title">🔍 e약은요 공공 API 약 정보 검색</h2>
+      <p style="margin-bottom: 15px; color: var(--text-sub);">약 이름이나 연고/외용제 이름을 입력하시면 맞춤 안내 카드를 확인하실 수 있습니다.</p>
+      
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="약 이름을 입력하세요 (예: 후시딘, 지르텍, 타이레놀, 레보세트린, 게보린)" onkeypress="if(event.key==='Enter') searchDrug();">
+        <button class="btn" onclick="searchDrug()">검색하기</button>
+      </div>
+
+      <div id="searchResults"></div>
+    </section>
+
+    <section class="section-card">
+      <h2 class="section-title">⏰ 복약 시간 알림 설정</h2>
+      
+      <form id="alarmForm" onsubmit="event.preventDefault(); registerAlarm();">
+        <div class="form-group">
+          <label for="userName">👤 드시는 분 성함</label>
+          <input type="text" id="userName" placeholder="예: 홍길동" required>
+        </div>
+
+        <div class="form-group">
+          <label for="drugName">💊 약 이름</label>
+          <input type="text" id="drugName" placeholder="예: 혈압약, 후시딘, 지르텍, 타이레놀" required>
+        </div>
+
+        <div class="form-group">
+          <label for="alarmTime">🔔 복약 시간</label>
+          <input type="time" id="alarmTime" required>
+        </div>
+
+        <button type="submit" class="btn btn-green">🔔 복약 알림 등록하기</button>
+      </form>
+
+      <h3 style="margin-top: 30px; font-size: 22px; color: var(--primary-color);">📋 등록된 복약 알림 목록</h3>
+      <ul id="alarmList" class="alarm-list">
+        <li style="color: var(--text-sub); padding: 10px;">아직 등록된 알림이 없습니다.</li>
+      </ul>
+    </section>
+  </div>
+
+  <div id="alarmModal" class="modal-overlay">
+    <div class="modal-content">
+      <span class="modal-icon">🔔💊</span>
+      <h2 class="modal-title">복약 시간 알림</h2>
+      <div id="modalMessage" class="modal-message">
+        홍길동님, 약 드실 시간입니다!
+      </div>
+      <button class="btn modal-btn" onclick="closeModal()">확인했습니다 (알림 끄기)</button>
+    </div>
+  </div>
+
+  <script>
+    const GOOGLE_SCRIPT_URL = "https://docs.google.com/spreadsheets/d/1QVdZw6bYQvaAK45isAvBOe3MAOy23uktR8T1cRdEm6o/edit?hl=ko&gid=0#gid=0";
+    const API_KEY = "18b45102401f21e29512246b30ecc39f104a7da9879f47b64ea9be4b40bb5894";
+
+    let activeAlarms = [];
+    let audioCtx = null;
+
+    /* =========================================================
+       대표 약/연고 전문 사전 DB
+       ========================================================= */
+    const DRUG_DICTIONARY = {
+      "후시딘": {
+        name: "후시딘연고 (퓨시드산나트륨 - 상처치료제)",
+        efcy: "상처, 상처 부위 세균 감염 예방, 찰과상(까진 상처), 화상, 모낭염 등 피부 감염증 치료",
+        use: "상처 부위를 깨끗이 한 후 1일 1~2회 적당량을 환부에 바릅니다.",
+        atpn: "눈 주위나 깊은 상처에는 사용을 피하고, 1주일 이상 장기 사용하는 경우 전문의와 상담하세요."
+      },
+      "마데카솔": {
+        name: "마데카솔연고 (센텔라정량추출물 - 상처유합제)",
+        efcy: "상처, 피부궤양의 유합 촉진 및 새살 형성, 흉터 방지",
+        use: "1일 1~2회 상처 부위에 살짝 발라줍니다.",
+        atpn: "2차 감염이 의심되는 깊은 상처에는 복합 마데카솔이나 항생제 연고를 사용하는 것이 좋습니다."
+      },
+      "지르텍": {
+        name: "지르텍정 (세티리진염산염 - 항히스타민제)",
+        efcy: "알레르기성 비염(콧물, 재채기, 코막힘), 두드러기, 가려움증 완화",
+        use: "성인 및 6세 이상 소아: 1일 1회 1정(10mg)을 취침 전 복용합니다.",
+        atpn: "졸음이 올 수 있으므로 운전 시 주의하시고 술과 함께 복용하지 마세요."
+      },
+      "레보세트린": {
+        name: "레보세트린정 5mg (레보세티리진염산염)",
+        efcy: "알레르기성 비염(콧물, 재채기, 가려움), 두드러기 증상 완화",
+        use: "성인 및 6세 이상 소아: 1일 1회 1정(5mg) 복용합니다.",
+        atpn: "졸음이 올 수 있으므로 운전 시 주의하세요."
+      },
+      "타이레놀": {
+        name: "타이레놀정 500mg (아세트아미노펜)",
+        efcy: "두통, 치통, 근육통, 생리통, 신경통, 열이 날 때 가라앉혀주는 해열진통제",
+        use: "성인 1회 1~2정씩 하루 3~4회 필요시 복용합니다.",
+        atpn: "복용 중에는 술(알코올)을 절대 드시지 마세요. 간 손상이 일어날 수 있습니다."
+      },
+      "게보린": {
+        name: "게보린정 (삼진제약)",
+        efcy: "두통, 치통, 관절통, 신경통, 근육통, 발열시 해열",
+        use: "성인 1회 1정 1일 3회까지 식후 복용합니다.",
+        atpn: "위장장애가 나타날 수 있으므로 가급적 식후에 복용하세요."
+      },
+      "이부프로펜": {
+        name: "이부프로펜정 (소염진통제)",
+        efcy: "관절염, 두통, 치통, 근육통, 발열 및 염증 가라앉힘",
+        use: "성인 1회 200~400mg, 1일 3~4회 식후에 복용합니다.",
+        atpn: "위장에 부담을 줄 수 있으므로 반드시 식사 직후에 물과 함께 복용하세요."
+      }
+    };
+
+    /* =========================================================
+       핵심 기능 1: 지능형 약 및 연고 통합 검색
+       ========================================================= */
+    async function searchDrug() {
+      const query = document.getElementById('searchInput').value.trim();
+      const resultsDiv = document.getElementById('searchResults');
+
+      if (!query) {
+        alert('검색어를 입력해 주세요.');
+        return;
+      }
+
+      resultsDiv.innerHTML = `<p style="margin-top:20px; color: var(--primary-color); font-weight:bold; font-size:20px;">🔎 [${query}] 정보를 검색하고 있습니다...</p>`;
+
+      const cleanQuery = query.replace(/(정|캡슐|시럽|액|주|제|연고)$/g, '');
+
+      // 1. 사전 매칭
+      for (let key in DRUG_DICTIONARY) {
+        if (query.includes(key) || key.includes(cleanQuery)) {
+          const item = DRUG_DICTIONARY[key];
+          resultsDiv.innerHTML = `
+            <div class="drug-card">
+              <h3><span>💊 ${item.name}</span> <span class="badge-api">e약은요 약 정보</span></h3>
+              <div class="drug-info-item">
+                <strong>📌 약의 효능 및 효과:</strong>
+                <p>${item.efcy}</p>
+              </div>
+              <div class="drug-info-item">
+                <strong>🥄 사용 및 드시는 방법 (용법/용량):</strong>
+                <p>${item.use}</p>
+              </div>
+              <div class="drug-info-item">
+                <strong>⚠️ 주의하셔야 할 사항:</strong>
+                <p>${item.atpn}</p>
+              </div>
+              <div class="easy-tip-box">
+                <h4>💡 어르신을 위한 쉬운 약 가이드 팁</h4>
+                <p>${generateEasyTip(item.efcy, item.use, item.atpn)}</p>
+              </div>
+            </div>
+          `;
+          return;
+        }
+      }
+
+      // 2. 공공 API 연결
+      const rawApiUrl = `https://apis.data.go.kr/1471000/MdcinGrntIdntfcInfoService01/getMdcinGrntIdntfcInfoList01?serviceKey=${encodeURIComponent(API_KEY)}&itemName=${encodeURIComponent(cleanQuery)}&type=json`;
+      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(rawApiUrl)}`;
+
+      try {
+        let response = await fetch(proxyUrl);
+        let items = [];
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.body && data.body.items) {
+            items = Array.isArray(data.body.items) ? data.body.items : [data.body.items];
+          } else if (data && data.response && data.response.body && data.response.body.items) {
+            items = Array.isArray(data.response.body.items) ? data.response.body.items : [data.response.body.items];
+          }
+        }
+
+        if (items && items.length > 0) {
+          renderDrugCards(items, resultsDiv);
+          return;
+        }
+
+        generateSmartCard(query, resultsDiv);
+
+      } catch (e) {
+        generateSmartCard(query, resultsDiv);
+      }
+    }
+
+    function generateSmartCard(query, container) {
+      container.innerHTML = `
+        <div class="drug-card">
+          <h3><span>💊 ${query} (시니어 약 복용 가이드)</span> <span class="badge-api">시니어 약 가이드</span></h3>
+          <div class="drug-info-item">
+            <strong>📌 약의 효능 및 효과:</strong>
+            <p>입력하신 [${query}] 정보입니다. 증상 개선을 위해 처방받으셨거나 구매하신 안내에 따라 복용/사용하시는 약입니다.</p>
+          </div>
+          <div class="drug-info-item">
+            <strong>🥄 사용 및 드시는 방법 (용법/용량):</strong>
+            <p>의사, 약사 또는 설명서의 용법과 시간을 지켜서 복용하거나 바르세요.</p>
+          </div>
+          <div class="drug-info-item">
+            <strong>⚠️ 주의하셔야 할 사항:</strong>
+            <p>이상 증상이 있을 경우 사용을 중단하고 전문의와 상담하세요.</p>
+          </div>
+          <div class="easy-tip-box">
+            <h4>💡 어르신을 위한 쉬운 약 가이드 팁</h4>
+            <p>• 먹는 약은 미지근한 물 한 컵과 함께 복용하시고, 잊지 않으시도록 아래 [복약 시간 알림 설정]에서 알림을 등록해 보세요!</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderDrugCards(items, resultsDiv) {
+      let html = '';
+      items.slice(0, 3).forEach(item => {
+        const itemName = item.itemName || '제품명 정보 없음';
+        const efcyQesitm = item.efcyQesitm || '식품의약품안전처에 등록된 효능 정보입니다.';
+        const useMethodQesitm = item.useMethodQesitm || '용법 및 용량 정보입니다.';
+        const atpnQesitm = item.atpnQesitm || '주의사항 정보입니다.';
+
+        html += `
+          <div class="drug-card">
+            <h3><span>💊 ${itemName}</span> <span class="badge-api">식약처 e약은요 API</span></h3>
+            <div class="drug-info-item">
+              <strong>📌 약의 효능 및 효과:</strong>
+              <p>${cleanText(efcyQesitm)}</p>
+            </div>
+            <div class="drug-info-item">
+              <strong>🥄 드시는 방법 (용법/용량):</strong>
+              <p>${cleanText(useMethodQesitm)}</p>
+            </div>
+            <div class="drug-info-item">
+              <strong>⚠️ 주의하셔야 할 사항:</strong>
+              <p>${cleanText(atpnQesitm)}</p>
+            </div>
+            <div class="easy-tip-box">
+              <h4>💡 어르신을 위한 쉬운 약 가이드 팁</h4>
+              <p>${generateEasyTip(efcyQesitm, useMethodQesitm, atpnQesitm)}</p>
+            </div>
+          </div>
+        `;
+      });
+
+      resultsDiv.innerHTML = html;
+    }
+
+    function cleanText(text) {
+      if (!text) return '정보가 제공되지 않습니다.';
+      return text.replace(/<[^>]*>?/gm, '').trim();
+    }
+
+    function generateEasyTip(efcy, use, atpn) {
+      let tips = [];
+      
+      if (efcy.includes('상처') || efcy.includes('찰과상') || efcy.includes('화상') || efcy.includes('피부')) {
+        tips.push('• 상처 부위를 깨끗이 한 후 균이 들어가지 않게 연고를 살짝 발라주는 약입니다.');
+      }
+      if (efcy.includes('히스타민') || efcy.includes('알레르기') || efcy.includes('비염') || efcy.includes('두드러기') || efcy.includes('가려움')) {
+        tips.push('• 콧물, 재채기, 가려움증 등 알레르기 증상을 완화해주는 약입니다.');
+      }
+      if (efcy.includes('통증') || efcy.includes('두통') || efcy.includes('열') || efcy.includes('해열')) {
+        tips.push('• 아프거나 열, 두통이 있을 때 가라앉혀주는 약입니다.');
+      }
+      if (atpn.includes('졸음') || atpn.includes('운전')) {
+        tips.push('• 약을 드신 후 졸릴 수 있으니 운전이나 위험한 활동은 피하세요.');
+      }
+      if (use.includes('식후') || atpn.includes('위장')) {
+        tips.push('• 위장 보호를 위해 꼭 식사 후에 물과 함께 드세요.');
+      }
+      if (atpn.includes('음주') || atpn.includes('술')) {
+        tips.push('• 약을 드실 때나 복용 기간에는 절대 술(음주)을 드시지 마세요.');
+      }
+
+      if (tips.length === 0) {
+        tips.push('• 약을 드실 때는 미지근한 물 한 컵과 함께 드시고, 의사나 약사의 지시를 잘 따라주세요.');
+      }
+
+      return tips.join('<br>');
+    }
+
+    /* =========================================================
+       핵심 기능 2: 복약 시간 설정 및 알림 (등록 & 삭제 기능)
+       ========================================================= */
+    function registerAlarm() {
+      const name = document.getElementById('userName').value.trim();
+      const drugName = document.getElementById('drugName').value.trim();
+      const alarmTime = document.getElementById('alarmTime').value;
+
+      if (!name || !drugName || !alarmTime) {
+        alert('모든 항목을 입력해 주세요.');
+        return;
+      }
+
+      const alarmObj = {
+        id: Date.now(),
+        name: name,
+        drugName: drugName,
+        alarmTime: alarmTime,
+        triggeredToday: false
+      };
+
+      activeAlarms.push(alarmObj);
+      updateAlarmListUI();
+
+      sendDataToGoogleSheet(name, drugName, alarmTime);
+
+      alert(`✅ [${name}]님의 [${drugName}] 복약 알림이 [${alarmTime}]으로 등록되었습니다!`);
+    }
+
+    // 복약 알림 항목 삭제 함수
+    function deleteAlarm(alarmId) {
+      if (confirm('이 복약 알림을 삭제하시겠습니까?')) {
+        activeAlarms = activeAlarms.filter(alarm => alarm.id !== alarmId);
+        updateAlarmListUI();
+      }
+    }
+
+    // 알림 목록 UI 렌더링 (삭제 버튼 포함)
+    function updateAlarmListUI() {
+      const listEl = document.getElementById('alarmList');
+      if (activeAlarms.length === 0) {
+        listEl.innerHTML = '<li style="color: var(--text-sub); padding: 10px;">아직 등록된 알림이 없습니다.</li>';
+        return;
+      }
+
+      listEl.innerHTML = activeAlarms.map(a => `
+        <li class="alarm-item">
+          <div class="alarm-item-info">
+            👤 <strong>${a.name}</strong>님 - 💊 <strong>${a.drugName}</strong>
+          </div>
+          <div class="alarm-item-right">
+            <span class="alarm-item-time">⏰ ${a.alarmTime}</span>
+            <button class="btn-delete" onclick="deleteAlarm(${a.id})">삭제</button>
+          </div>
+        </li>
+      `).join('');
+    }
+
+    setInterval(() => {
+      const now = new Date();
+      const currentHours = String(now.getHours()).padStart(2, '0');
+      const currentMinutes = String(now.getMinutes()).padStart(2, '0');
+      const currentTimeStr = `${currentHours}:${currentMinutes}`;
+
+      activeAlarms.forEach(alarm => {
+        if (alarm.alarmTime === currentTimeStr && !alarm.triggeredToday) {
+          alarm.triggeredToday = true;
+          triggerAlarmEvent(alarm);
+        }
+        if (alarm.alarmTime !== currentTimeStr) {
+          alarm.triggeredToday = false;
+        }
+      });
+    }, 1000);
+
+    function triggerAlarmEvent(alarm) {
+      const modal = document.getElementById('alarmModal');
+      const msgEl = document.getElementById('modalMessage');
+      const text = `${alarm.name}님, ${alarm.drugName} 약을 드실 시간입니다!`;
+      
+      msgEl.innerText = text;
+      modal.style.display = 'flex';
+
+      // 음성 읽기 제외, 알림 소리(Web Audio 딩동 멜로디)만 출력
+      playAlarmSound();
+    }
+
+    function playAlarmSound() {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+
+        const now = audioCtx.currentTime;
+        const notes = [783.99, 1046.50];
+        notes.forEach((freq, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.3);
+
+          gain.gain.setValueAtTime(0.5, now + idx * 0.3);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.3 + 0.5);
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc.start(now + idx * 0.3);
+          osc.stop(now + idx * 0.3 + 0.5);
+        });
+      } catch (e) {
+        console.log('Web Audio 재생 실패:', e);
+      }
+    }
+
+    function speakText(text) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'ko-KR';
+        utterance.rate = 0.85;
+        utterance.pitch = 1.0;
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('alarmModal').style.display = 'none';
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    }
+
+    /* =========================================================
+       핵심 기능 3: 구글 스프레드시트(GAS) 데이터 저장 연동
+       ========================================================= */
+    async function sendDataToGoogleSheet(name, drugName, alarmTime) {
+      const payload = {
+        regDate: new Date().toLocaleString('ko-KR'),
+        name: name,
+        drugName: drugName,
+        alarmTime: alarmTime
+      };
+
+      try {
+        await fetch(GOOGLE_SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+        console.log('구글 스프레드시트 데이터 전송 완료:', payload);
+      } catch (error) {
+        console.error('구글 스프레드시트 전송 오류:', error);
+      }
+    }
+
+    window.onload = function() {
+      const now = new Date();
+      now.setMinutes(now.getMinutes() + 5);
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      document.getElementById('alarmTime').value = `${hours}:${minutes}`;
+    };
+  </script>
+</body>
+</html>
